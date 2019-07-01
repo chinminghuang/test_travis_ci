@@ -20,16 +20,27 @@ install:
 
 jobs:
   include:
+    # Unit test for PRs from all branches
     - stage: unittest
+      name: "Unit Tests"
       script: pytest
 
+    # Docker build only for PRs from master & dev branches
     - stage: docker_build
+      name: "Build docker"
+      if: branch =~ /^(master|dev)$/ && type IN (pull_request)
       script: >-
         source cmd.sh;
         test_bash
 
     - stage: deploy
-      script: echo "Deploy"
+      name: "Deploy for dev"
+      if: branch = dev && type IN (pull_request)
+      script: echo "Deploy for dev"
+    - name: "Deploy for master"
+      if: branch = master && type IN (pull_request)
+      script: echo "Deploy for master"
 
     - stage: functional_test
+      if: branch = dev && type IN (pull_request)
       script: echo "Functional test"
