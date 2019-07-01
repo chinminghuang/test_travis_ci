@@ -2,12 +2,34 @@ dist: xenial
 language: python
 python:
   - '3.7'
+
 notifications:
   email:
     recipients: chinming@writepath.co
     on_success: always
     on_failure: always
 
+stages:
+  - unittest
+  - docker_build
+  - deploy
+  - functional_test
+
 install:
   - pip install -r requirements.txt
 
+jobs:
+  include:
+    - stage: unittest
+      script: pytest
+
+    - stage: docker_build
+      script: >-
+        source cmd.sh;
+        test_bash
+
+    - stage: deploy
+      script: echo "Deploy"
+
+    - stage: functional_test
+      script: echo "Functional test"
