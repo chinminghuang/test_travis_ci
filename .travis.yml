@@ -19,33 +19,26 @@ jobs:
   - stage: unittest
     name: Unit Tests
     script: pytest
+
   - stage: docker_build
-    name: Build docker
-    if: branch =~ /^(master|dev)$/ && type IN (pull_request)
+    name: Build and deploy docker for dev branch
+    if: branch = dev && type IN (pull_request)
     sudo: required
     services: docker
     before_install:
-    - chmod +x ecr_credentials.sh && ./ecr_credentials.sh && env
+    - chmod +x credentials.sh && ./credentials.sh
     install: pip3 install awscli --upgrade
     script:
     - docker build -t docsvc .
     after_success:
     - eval $(aws ecr get-login --region ap-northeast-1 --no-include-email)
-    - aws ecr describe-repositories --region ap-northeast-1
     - docker tag docsvc:latest $AWS_ECR_DOCSVC_DEV_REPO:latest
     - docker push $AWS_ECR_DOCSVC_DEV_REPO:latest
-  - stage: deploy
-    name: Deploy for dev
-    if: branch = dev && type IN (pull_request)
-    sudo: required
-    script: echo "Deploy for dev"
-  - name: Deploy for master
-    if: branch = master && type IN (pull_request)
-    sudo: required
-    script: echo "Deploy for master"
+
   - stage: functional_test
     if: branch = dev && type IN (pull_request)
     script: echo "Functional test"
+
 env:
   global:
   - secure: ZaAMgsHnGYpu2FKoxiLN4RV3J0a/rthpYI4CcMIi5VMLrIx7B9JvN77OSjnV/M+DxConUr9NlAeqSuCl5TOeyRssmC27y/lGTnuiavORdieVe+zSiGD5keIHGh9pmG242/ywUmKcBpKFOK1Ns0FUXsQVGRtco+CyKrJ97vn1bmEe6xH3IAJuLAwyN+ugBfeKEbLHlshAQO4gP45SVGTLfdLINtzfwQAVTAfqyNVKgBGzehM/4GgfRP2n4cjIZFXojHQmcdIWbOCj7jKzEojKxXw1Yj95c3yaVOZFXBWPEP3r6kjnhymLYIjY8XjM8i1KnaeJgnOBl9atGQCsL31BfBMQz0DfiXk1OnluQm8rX0huSOw5jQlfv/1jbmZ7q5Tr4WZkkNI/Ln8RhUb12of/flX9OF1f9AadW2nVhF5rwsv7mOiJQP0gBda9PxHBHCiAw3A7Jx0JTaeAzcV3Ie3/sICqPg7aJ4C3Z+lvaFLNUrJDSeh8kCr8+GmafIcHmjyJjJh08D60IrH1YYjw9VkGSjM5vuEcES1y1+iBEIC7DBlJOY0xtjV9ZxX4anyDicvDMZKVJT66y6Rpu+rdvO7d/0YyGZ5u6POovn2PAj6ztW5YBZkySDZkzMKDW6KDIfHrcm/BoTYdTdsojpA7ldFZcyLScdUU9ZCbiB7AvDQrq0M=
