@@ -31,8 +31,8 @@ jobs:
     - docker build -t docsvc .
     after_success:
     - echo $AWS_ECR_DOCSVC_DEV_REPO
-    - eval $(aws ecr get-login --region ap-northeast-1)
-    - eval $(aws ecr describe-repositories)
+    - aws ecr get-login --region ap-northeast-1 --no-include-email
+    - aws ecr describe-repositories
     - docker tag docsvc:latest $AWS_ECR_DOCSVC_DEV_REPO:latest
     - docker push $AWS_ECR_DOCSVC_DEV_REPO:latest
   - stage: deploy
