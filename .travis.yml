@@ -30,7 +30,7 @@ jobs:
     sudo: required
     services: docker
     before_install:
-    - chmox +x ecr_credentials.sh && ./ecr_credentials.sh
+    - chmod +x ecr_credentials.sh && ./ecr_credentials.sh
     install: pip3 install awscli --upgrade
     script:
     - echo $ENC_AWS_ACCESS_KEY_ID
