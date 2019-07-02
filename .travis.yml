@@ -30,7 +30,7 @@ jobs:
     sudo: required
     services: docker
     before_install:
-    install: pip3 install awscli --upgrade --user
+    install: pip3 install awscli --upgrade
     script:
     - source cmd.sh && test_bash
     - docker build -t docsvc .
