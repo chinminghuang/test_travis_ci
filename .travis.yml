@@ -1,7 +1,7 @@
 dist: xenial
 language: python
 python:
-  - '3.7'
+- '3.7'
 
 notifications:
   email:
@@ -10,37 +10,50 @@ notifications:
     on_failure: always
 
 stages:
-  - unittest
-  - docker_build
-  - deploy
-  - functional_test
+- unittest
+- docker_build
+- deploy
+- functional_test
 
 install:
-  - pip install -r requirements.txt
+- pip install -r requirements.txt
 
 jobs:
   include:
-    # Unit test for PRs from all branches
-    - stage: unittest
-      name: "Unit Tests"
-      script: pytest
+  - stage: unittest
+    name: Unit Tests
+    script: pytest
 
-    # Docker build only for PRs from master & dev branches
-    - stage: docker_build
-      name: "Build docker"
-      if: branch =~ /^(master|dev)$/ && type IN (pull_request)
-      script: >-
-        source cmd.sh;
-        test_bash
+  - stage: docker_build
+    name: Build docker
+    if: branch =~ /^(master|dev)$/ && type IN (pull_request)
+    sudo: required
+    services: docker
+    before_install:
+    install: pip3 install awscli --upgrade --user
+    script:
+    - source cmd.sh && test_bash
+    - docker build -t docsvc .
+    after_success:
+    - eval $(aws ecr get-login --region us-east-1)
+    - docker tag docsvc:latest $AWS_ECR_DOCSVC_DEV_REPO:latest
+    - docker push $AWS_ECR_DOCSVC_DEV_REPO:latest
 
-    - stage: deploy
-      name: "Deploy for dev"
-      if: branch = dev && type IN (pull_request)
-      script: echo "Deploy for dev"
-    - name: "Deploy for master"
-      if: branch = master && type IN (pull_request)
-      script: echo "Deploy for master"
+  - stage: deploy
+    name: Deploy for dev
+    if: branch = dev && type IN (pull_request)
+    sudo: required
+    script: echo "Deploy for dev"
+  - name: Deploy for master
+    if: branch = master && type IN (pull_request)
+    sudo: required
+    script: echo "Deploy for master"
 
-    - stage: functional_test
-      if: branch = dev && type IN (pull_request)
-      script: echo "Functional test"
+  - stage: functional_test
+    if: branch = dev && type IN (pull_request)
+    script: echo "Functional test"
+
+env:
+  global:
+  - secure: $ENC_AWS_ACCESS_KEY_ID
+  - secure: $ENC_AWS_SECRET_ACCESS_KEY
