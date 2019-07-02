@@ -2,28 +2,23 @@ dist: xenial
 language: python
 python:
 - '3.7'
-
 notifications:
   email:
     recipients: chinming@writepath.co
     on_success: always
     on_failure: always
-
 stages:
 - unittest
 - docker_build
 - deploy
 - functional_test
-
 install:
 - pip install -r requirements.txt
-
 jobs:
   include:
   - stage: unittest
     name: Unit Tests
     script: pytest
-
   - stage: docker_build
     name: Build docker
     if: branch =~ /^(master|dev)$/ && type IN (pull_request)
@@ -33,14 +28,12 @@ jobs:
     - chmod +x ecr_credentials.sh && ./ecr_credentials.sh && ls ~/.aws/
     install: pip3 install awscli --upgrade
     script:
-    - echo $ENC_AWS_ACCESS_KEY_ID
-    - source cmd.sh && test_bash
     - docker build -t docsvc .
     after_success:
+    - echo $AWS_ECR_DOCSVC_DEV_REPO
     - eval $(aws ecr get-login --region us-east-1)
     - docker tag docsvc:latest $AWS_ECR_DOCSVC_DEV_REPO:latest
     - docker push $AWS_ECR_DOCSVC_DEV_REPO:latest
-
   - stage: deploy
     name: Deploy for dev
     if: branch = dev && type IN (pull_request)
@@ -50,12 +43,10 @@ jobs:
     if: branch = master && type IN (pull_request)
     sudo: required
     script: echo "Deploy for master"
-
   - stage: functional_test
     if: branch = dev && type IN (pull_request)
     script: echo "Functional test"
-
 env:
   global:
-  - secure: $ENC_AWS_ACCESS_KEY_ID
-  - secure: $ENC_AWS_SECRET_ACCESS_KEY
+  - secure: iQcSEPS9Famo2g1MctZmJBxxGSpwAPShUAM1np7mEbBzLJhcE5zLv+f6E48LcIdeEZ4V1+BOsE86fcG+pwrIUv37CtVNX2qOUa8JTHP+Gbuq4iBlJlAYSjjZmzw98FWzzX8fM3LbpV5IOJTEO13UEewm5E6HPzgkNdUc7l3SzEk2QgKtGUKT4GA3Mxa/0U6tJe068LJvl5i7OCo+n/E61QKBMraBgpkcxWxIFLOBvWM/kH7XqnXJ8x/9+NJSqrFAsbYEUWDo5ZFcWNAvqfUawtZjk76vAWL0EIeoYKSUfACXW08B4gCmZWXzbWB3GJDmDapvrpG9QKo/Zr/B+BJPClUPi+VKp3bjcnyGCJqKWWjhrgo19OP1e+Bga9BEcwtDwPhDQltUySXTfodTRonMyH0G5aMt97EE8siCrvItfsWCVAd5lOrOlWT/0kAxgThvklheeIbOmuP77frYM01+qCHIDdZhPMypqTX3PRGmfmhOoxOCgc8rprRtv1tbJ5/KUazQTulIdaEW5RxOwjgaqJJiZbDNoLv5KRmpmXGYQRw3hE070dzvobL722Ic7amUcu7Mbs1sURxVgrNPXwX62TbxQYEbCreCoe3lOTS0vZLRak2o/tBAcFoc3qb5bX+uM6o+baKDrmiKdHRcjlkYVj+DXMBoIu3hag5X4cjVowc=
+  - secure: HP+n+v0aPbKacybFuM4714aiBo98aeOtWmQY3u8oLjGO2rUoT0LA2iHyGitnZjjTsOC1PpgOPZIlz2A31SrzElVOiBxmqWjd7xctnnk/UbV4K7LaahI7gWpxVYRQNvJdKK8XsxAFPCPvpClhCl+W1aiVEQt7pSJgkAPmE0EmOugVIkJXZP2KB0teEX20hgHJCJQD6jD03/n0LKPZi+fFY0TsvPbBH+AYIWQr9zb6ou5L8zHHkVgVLKP+UklLQoGpfWodIo40LOOaJlrvgB+SXSo5ev9Z80SZnPw0/Y+gU77QuPFldWhR3G1fRDE0dEgpZo5QYWQP23SBeQ4FsLjBn92D4jnpCd5qUmwkj1MBLgXM+ScJBYDaClskJ8E9YrJCXm5HX/q7MSXvN+kDEpM0r9SS9JzX1MLj0win4uYCaPM8ZRnOard4+Sjq+JJlfJ/XTWF3Cj/x6II3vw0aoV1CaWJfoMNVOBptdh+UObtUuazcGKGsz6QUx0pkvzV0iZk4njLkKm45uQxkeA1GjNawdtLjV13Pf6XRpw0+6zYzxH79blxHx0Ks51gKtLQrSyZeDt2ad2SdPe/CT9ybTvGrPgEREr53/xfXZbIkAepisHsrOuLVKmfF+OreN2TJijPazcPxwoUjF1LSfAo2htyoMY7DQwkXTLq1Tz+BpIC9S5E=
