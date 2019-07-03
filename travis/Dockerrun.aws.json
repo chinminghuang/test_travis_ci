@@ -1,9 +1,16 @@
 {
-    "AWSEBDockerrunVersion": 2,
+    "AWSEBDockerrunVersion": "2",
     "containerDefinitions": [
         {
-            "name": "test",
-            "image": "889231634371.dkr.ecr.ap-northeast-1.amazonaws.com/test:latest"
+            "name": "test_travis_ci",
+            "image": "<AWS_ECR_REGISTRY>/<AWS_ECR_REPO_TEST>:latest",
+            "essential": true,
+            "portMappings": [
+                {
+                    "hostPort": 80,
+                    "containerPort": 80
+                }
+            ]
         }
     ]
 }

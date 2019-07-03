@@ -42,12 +42,11 @@ jobs:
     before_deploy:
     - pip3 install awsebcli
     - cp travis/Dockerrun.aws.json .
+    - sed -i='' "s/<AWS_ECR_REGISTRY>/$AWS_ECR_REGISTRY/" Dockerrun.aws.json
+    - sed -i='' "s/<AWS_ECR_REPO_TEST>/$AWS_ECR_REPO_TEST/" Dockerrun.aws.json
     deploy:
-      provider: elasticbeanstalk
-      region: "ap-northeast-1"
-      app: "test_travis_ci"
-      env: "test-travis-ci-dev"
-      bucket_name: "elasticbeanstalk-ap-northeast-1-889231634371"
+      provider: script
+      script: bash travis/deploy_eb.sh $IMG_TAG
       on:
         branch: dev
 
