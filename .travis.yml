@@ -22,7 +22,7 @@ jobs:
 
   - stage: docker_build
     name: Build and deploy docker for dev branch
-    if: branch = dev && type IN (pull_request)
+    if: branch = dev && type IN (push)
     sudo: required
     services: docker
     before_install:
