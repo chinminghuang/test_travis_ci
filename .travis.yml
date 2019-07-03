@@ -45,7 +45,7 @@ jobs:
         branch: dev
 
   - stage: functional_test
-    if: branch = dev && type IN (pull_request)
+    if: branch = dev && type IN (push)
     script: echo "Functional test"
 
 env:
