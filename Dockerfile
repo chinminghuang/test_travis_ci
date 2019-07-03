@@ -14,6 +14,6 @@ RUN echo 'mkdir -p /var/lock/apache2' >> /root/run_apache.sh
 RUN echo '/usr/sbin/apache2 -D FOREGROUND' >> /root/run_apache.sh
 RUN chmod 755 /root/run_apache.sh
 
-EXPOSE 12345
+EXPOSE 80
 
 CMD /root/run_apache.sh
