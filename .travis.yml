@@ -26,14 +26,19 @@ jobs:
     sudo: required
     services: docker
     before_install:
-    - chmod +x credentials.sh && ./credentials.sh
+    - bash travis/credentials.sh
     install: pip3 install awscli --upgrade
     script:
     - docker build -t docsvc .
     after_success:
     - eval $(aws ecr get-login --region ap-northeast-1 --no-include-email)
-    - docker tag docsvc:latest $AWS_ECR_DOCSVC_DEV_REPO:latest
-    - docker push $AWS_ECR_DOCSVC_DEV_REPO:latest
+    - docker tag docsvc:latest $AWS_ECR_TEST:latest
+    - docker push $AWS_ECR_TEST:latest
+    deploy:
+      provider: script
+      script: bash travis/deploy_eb.sh
+      on:
+        branch: dev
 
   - stage: functional_test
     if: branch = dev && type IN (pull_request)
