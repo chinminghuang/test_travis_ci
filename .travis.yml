@@ -31,9 +31,13 @@ jobs:
     script:
     - docker build -t docsvc .
     after_success:
+    - export IMG_TAG="dev-$(git rev-parse --short ${TRAVIS_COMMIT})"
+    - docker tag docsvc:latest $AWS_ECR_REGISTRY/$AWS_ECR_REPO_TEST:$IMG_TAG
     - eval $(aws ecr get-login --region ap-northeast-1 --no-include-email)
-    - docker tag docsvc:latest $AWS_ECR_TEST:latest
-    - docker push $AWS_ECR_TEST:latest
+    - docker push $AWS_ECR_REGISTRY/$AWS_ECR_REPO_TEST:$IMG_TAG
+    # Re-tag as latest
+    - MANIFEST=$(aws ecr batch-get-image --repository-name $AWS_ECR_REPO_TEST --image-ids imageTag=$IMG_TAG --query 'images[].imageManifest' --output text)
+    - aws ecr put-image --repository-name $AWS_ECR_REPO_TEST --image-tag latest --image-manifest "$MANIFEST"
     deploy:
       provider: script
       script: bash travis/deploy_eb.sh
