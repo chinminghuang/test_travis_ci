@@ -27,10 +27,11 @@ jobs:
     services: docker
     before_install:
     - bash travis/credentials.sh
-    install: pip3 install awscli --upgrade
+    install:
+    - pip3 install awscli --upgrade
     script:
     - docker build -t docsvc .
-    after_success:
+    after_success:  # Upload docker image to ECR
     - export IMG_TAG="dev-$(git rev-parse --short ${TRAVIS_COMMIT})"
     - docker tag docsvc:latest $AWS_ECR_REGISTRY/$AWS_ECR_REPO_TEST:$IMG_TAG
     - eval $(aws ecr get-login --region ap-northeast-1 --no-include-email)
@@ -38,9 +39,15 @@ jobs:
     # Re-tag as latest
     - MANIFEST=$(aws ecr batch-get-image --repository-name $AWS_ECR_REPO_TEST --image-ids imageTag=$IMG_TAG --query 'images[].imageManifest' --output text)
     - aws ecr put-image --repository-name $AWS_ECR_REPO_TEST --image-tag latest --image-manifest "$MANIFEST"
+    before_deploy:
+    - pip3 install awsebcli
+    - cp travis/Dockerrun.aws.json .
     deploy:
-      provider: script
-      script: bash travis/deploy_eb.sh
+      provider: elasticbeanstalk
+      region: "ap-northeast-1"
+      app: "test_travis_ci"
+      env: "test-travis-ci-dev"
+      bucket_name: "elasticbeanstalk-ap-northeast-1-889231634371"
       on:
         branch: dev
 
