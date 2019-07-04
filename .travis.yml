@@ -3,10 +3,7 @@ language: python
 python:
 - '3.7'
 notifications:
-  email:
-    recipients: chinming@writepath.co
-    on_success: always
-    on_failure: always
+  slack: writepath:5URFX3Gw7YNwUuDuJjElhKje
 stages:
 - unittest
 - docker_build
