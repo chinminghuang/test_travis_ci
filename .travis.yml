@@ -39,10 +39,6 @@ jobs:
     # Re-tag as latest
     - MANIFEST=$(aws ecr batch-get-image --repository-name $AWS_ECR_REPO_TEST --image-ids imageTag=$IMG_TAG --query 'images[].imageManifest' --output text)
     - aws ecr put-image --repository-name $AWS_ECR_REPO_TEST --image-tag latest --image-manifest "$MANIFEST"
-    before_deploy:
-    - cp travis/Dockerrun.aws.json .
-    - sed -i='' "s/<AWS_ECR_REGISTRY>/$AWS_ECR_REGISTRY/" Dockerrun.aws.json
-    - sed -i='' "s/<AWS_ECR_REPO_TEST>/$AWS_ECR_REPO_TEST/" Dockerrun.aws.json
     deploy:
       provider: script
       script: bash travis/deploy_eb.sh $IMG_TAG
