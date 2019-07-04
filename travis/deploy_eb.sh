@@ -9,7 +9,7 @@ ZIP="Dockerrun.aws.json"
 
 echo "Zip and upload Dockerrun file"
 #zip -r $ZIP . -i Dockerrun.aws.json
-pwd
+pwd && ls
 aws s3 cp $ZIP s3://$EB_BUCKET/$ZIP
 
 echo "Create a new app version"
