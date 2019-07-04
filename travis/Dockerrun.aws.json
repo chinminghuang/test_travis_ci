@@ -3,6 +3,8 @@
     "containerDefinitions": [
         {
             "name": "test_travis_ci",
+            "cpu": 1,
+            "memoryReservation": 256,
             "image": "<AWS_ECR_REGISTRY>/<AWS_ECR_REPO_TEST>:latest",
             "essential": true,
             "portMappings": [
