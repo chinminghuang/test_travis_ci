@@ -6,7 +6,7 @@ EB_BUCKET="elasticbeanstalk-ap-northeast-1-889231634371"
 ZIP=$VERSION.zip
 
 echo "Zip and upload Dockerrun file"
-zip -r $ZIP Dockerrun.aws.json
+zip -r $ZIP . -i Dockerrun.aws.json
 aws s3 cp $ZIP s3://$EB_BUCKET/$ZIP
 
 echo "Create a new app version"
