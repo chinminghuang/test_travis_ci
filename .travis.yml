@@ -43,7 +43,6 @@ jobs:
     - cp travis/Dockerrun.aws.json .
     - sed -i='' "s/<AWS_ECR_REGISTRY>/$AWS_ECR_REGISTRY/" Dockerrun.aws.json
     - sed -i='' "s/<AWS_ECR_REPO_TEST>/$AWS_ECR_REPO_TEST/" Dockerrun.aws.json
-    - pip install awsebcli --upgrade
     deploy:
       provider: script
       script: bash travis/deploy_eb.sh $IMG_TAG
